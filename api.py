@@ -296,3 +296,16 @@ def serve_qc_file(job_id: str, iteration: int, path: str):
         media_type = "text/plain"
 
     return FileResponse(file_path, media_type=media_type)
+# -------------------------------------------------
+# RENDER ENTRYPOINT
+# -------------------------------------------------
+if __name__ == "__main__":
+    import uvicorn
+    import os
+
+    uvicorn.run(
+        "api:app",
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 8000))
+    )
+
