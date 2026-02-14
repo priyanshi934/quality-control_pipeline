@@ -7,6 +7,7 @@ import { Select } from '@/components/ui/select';
 import { uploadReads, uploadReference, createJob, runPipeline, getLogs, getQCReports } from './api';
 import { Loader2, CheckCircle, XCircle, FileText, Play, ExternalLink, BarChart2, Scissors, Activity, Terminal, ChevronDown, ChevronUp } from 'lucide-react';
 import { QCSummary } from './components/QCSummary';
+import { UserNav } from './components/UserNav';
 
 function App() {
   const [sampleName, setSampleName] = useState('');
@@ -142,16 +143,18 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="w-full max-w-[1800px] mx-auto space-y-6">
-        <div className="flex items-center justify-between bg-white p-4 rounded-lg border shadow-sm">
-          <div className="flex items-center space-x-3">
-            <div className="bg-blue-600 p-2 rounded-md">
-                <Activity className="h-6 w-6 text-white" />
+    <div className="min-h-screen bg-gray-50">
+      <UserNav />
+      <div className="p-6">
+        <div className="w-full max-w-[1800px] mx-auto space-y-6">
+          <div className="flex items-center justify-between bg-white p-4 rounded-lg border shadow-sm">
+            <div className="flex items-center space-x-3">
+              <div className="bg-blue-600 p-2 rounded-md">
+                  <Activity className="h-6 w-6 text-white" />
+              </div>
+              <h1 className="text-2xl font-bold text-gray-900">Bioinformatics Pipeline</h1>
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">Bioinformatics Pipeline</h1>
-          </div>
-          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2 px-4 py-2 bg-gray-50 rounded-full border">
                 {status === 'running' && <Loader2 className="animate-spin text-blue-500 h-4 w-4" />}
                 {status === 'completed' && <CheckCircle className="text-green-500 h-4 w-4" />}
@@ -381,6 +384,7 @@ function App() {
             )}
         </Card>
 
+        </div>
       </div>
     </div>
   );

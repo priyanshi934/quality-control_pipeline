@@ -1,27 +1,45 @@
 import React, { useState } from "react";
-import PipelineApp from "../PipelineApp"; 
+import { useNavigate } from "react-router-dom";
+import PipelineApp from "../PipelineApp";
+import { UserNav } from "../components/UserNav";
+import { useAuth } from "../contexts/AuthContext";
 import "./home.css";
 
 const Home: React.FC = () => {
   const [showPipeline, setShowPipeline] = useState(false);
+  const navigate = useNavigate();
+  const { isAuthenticated, isLoading } = useAuth();
 
-  // If user clicks "Try the Tool", show the pipeline frontend
-  if (showPipeline) {
+  const handleTryTool = () => {
+    if (!isAuthenticated) {
+      // Redirect to login if not authenticated
+      navigate("/login");
+    } else {
+      // Show pipeline if authenticated
+      setShowPipeline(true);
+    }
+  };
+
+  // If user clicks "Try the Tool" and is authenticated, show the pipeline frontend
+  if (showPipeline && isAuthenticated) {
     return <PipelineApp />;
   }
 
   return (
     <>
+      {isAuthenticated && <UserNav />}
       <nav>
         <div className="logo-placeholder">Logo Here</div>
         <div className="nav-links">
           <a href="#home">Home</a>
           <a href="#contact">Contact</a>
         </div>
-        <div className="auth-buttons">
-          <button>Sign Up</button>
-          <button>Log In</button>
-        </div>
+        {!isAuthenticated && !isLoading && (
+          <div className="auth-buttons">
+            <button onClick={() => navigate("/login")}>Log In</button>
+            <button onClick={() => navigate("/login")}>Sign Up</button>
+          </div>
+        )}
       </nav>
 
       <div className="homepage" id="home">
@@ -60,10 +78,16 @@ const Home: React.FC = () => {
           <h2>Join us now!</h2>
           <button
             className="cta-button"
-            onClick={() => setShowPipeline(true)}
+            onClick={handleTryTool}
+            style={{ cursor: "pointer" }}
           >
-            Try the Tool
+            {isLoading ? "Loading..." : isAuthenticated ? "🚀 Try the Tool" : "🔐 Get Started"}
           </button>
+          {isAuthenticated && (
+            <p style={{ marginTop: "20px", fontSize: "16px", color: "#ccc" }}>
+              ✓ You're logged in! Click the button above to access the pipeline.
+            </p>
+          )}
         </div>
       </div>
     </>
