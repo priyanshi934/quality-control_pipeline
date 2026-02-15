@@ -40,3 +40,7 @@ dag.png
 # Bioinfo / installers
 Miniconda3-latest-Linux-x86_64.sh
 
+dist/
+node_modules/
+
+
