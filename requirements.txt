@@ -2,3 +2,7 @@ fastapi
 uvicorn
 python-multipart
 psutil
+PyJWT
+bcrypt
+SQLAlchemy
+python-dotenv

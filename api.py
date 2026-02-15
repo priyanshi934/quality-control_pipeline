@@ -1,6 +1,8 @@
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
+from pydantic import BaseModel
+from sqlalchemy.orm import Session
 import subprocess
 import shutil
 import os
@@ -10,6 +12,8 @@ from pathlib import Path
 import psutil
 import json
 from typing import Optional
+from database import User, init_db, get_db
+from auth import hash_password, verify_password, create_access_token, verify_token
 
 # -------------------------------------------------
 # BASE PATHS
@@ -31,6 +35,9 @@ os.makedirs(RESULTS_DIR, exist_ok=True)
 # -------------------------------------------------
 app = FastAPI(title="Variant Calling Pipeline API")
 
+# Initialize database
+init_db()
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -43,6 +50,110 @@ app.add_middleware(
 # JOB REGISTRY (IN-MEMORY, STEP-2 SCOPE)
 # -------------------------------------------------
 JOBS = {}
+
+# -------------------------------------------------
+# PYDANTIC MODELS
+# -------------------------------------------------
+class UserRegister(BaseModel):
+    email: str
+    username: str
+    password: str
+
+
+class UserLogin(BaseModel):
+    email: str
+    password: str
+
+
+class AuthResponse(BaseModel):
+    access_token: str
+    token_type: str
+    email: str
+    username: str
+
+
+class TokenVerifyResponse(BaseModel):
+    valid: bool
+    email: Optional[str] = None
+    username: Optional[str] = None
+
+
+# -------------------------------------------------
+# AUTHENTICATION ENDPOINTS
+# -------------------------------------------------
+@app.post("/auth/register", response_model=AuthResponse)
+def register(user_data: UserRegister, db: Session = Depends(get_db)):
+    """Register a new user"""
+    # Check if user already exists
+    existing_user = db.query(User).filter(
+        (User.email == user_data.email) | (User.username == user_data.username)
+    ).first()
+    
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Email or username already registered")
+    
+    # Create new user
+    hashed_password = hash_password(user_data.password)
+    new_user = User(
+        email=user_data.email,
+        username=user_data.username,
+        hashed_password=hashed_password
+    )
+    
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    
+    # Create token
+    access_token = create_access_token({"sub": user_data.email})
+    
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "email": new_user.email,
+        "username": new_user.username
+    }
+
+
+@app.post("/auth/login", response_model=AuthResponse)
+def login(user_data: UserLogin, db: Session = Depends(get_db)):
+    """Login user"""
+    user = db.query(User).filter(User.email == user_data.email).first()
+    
+    if not user or not verify_password(user_data.password, user.hashed_password):
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+    
+    # Update last login time
+    from datetime import datetime
+    user.last_login = datetime.utcnow()
+    db.commit()
+    
+    # Create token
+    access_token = create_access_token({"sub": user.email})
+    
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "email": user.email,
+        "username": user.username
+    }
+
+
+@app.post("/auth/verify", response_model=TokenVerifyResponse)
+def verify_user_token(token: str = Form(...)):
+    """Verify user token"""
+    payload = verify_token(token)
+    
+    if not payload:
+        return {"valid": False}
+    
+    # You can optionally fetch user details from db here
+    return {
+        "valid": True,
+        "email": payload.get("sub")
+    }
+
+
 
 # -------------------------------------------------
 # HEALTH

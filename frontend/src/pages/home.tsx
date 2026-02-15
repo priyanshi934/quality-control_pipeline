@@ -1,25 +1,34 @@
 import React, { useState } from "react";
 import PipelineApp from "../PipelineApp";
+import { useNavigate } from "react-router-dom";
+import { UserNav } from "../components/UserNav";
+import { useAuth } from "../contexts/AuthContext";
 import "./home.css";
 import logo from "../assets/logo.png";
 
 const Home: React.FC = () => {
   const [showPipeline, setShowPipeline] = useState(false);
+  const navigate = useNavigate();
+  const { isAuthenticated, isLoading } = useAuth();
 
-  /* PIPELINE VIEW */
-  if (showPipeline) {
-    return (
-      <div>
-        <button className="back-button" onClick={() => setShowPipeline(false)}>
-          ← Back
-        </button>
-        <PipelineApp />
-      </div>
-    );
+  const handleTryTool = () => {
+    if (!isAuthenticated) {
+      // Redirect to login if not authenticated
+      navigate("/login");
+    } else {
+      // Show pipeline if authenticated
+      setShowPipeline(true);
+    }
+  };
+
+  // If user clicks "Try the Tool" and is authenticated, show the pipeline frontend
+  if (showPipeline && isAuthenticated) {
+    return <PipelineApp />;
   }
 
   return (
     <>
+      {isAuthenticated && <UserNav />}
       <nav className="navbar">
         <div className="logo-container">
           <img src={logo} className="logo" alt="Biocanvas Logo" />
@@ -31,14 +40,15 @@ const Home: React.FC = () => {
           <a href="#contact">Contact</a>
         </div>
 
-        <div className="auth-buttons">
-          <button className="secondary-btn">Sign Up</button>
-          <button className="primary-btn">Log In</button>
-        </div>
+        {!isAuthenticated && !isLoading && (
+          <div className="auth-buttons">
+            <button onClick={() => navigate("/login")}>Log In</button>
+            <button onClick={() => navigate("/login")}>Sign Up</button>
+          </div>
+        )}
       </nav>
 
       <div className="homepage" id="home">
-
         {/* HERO */}
         <section className="hero">
           <h1>
@@ -52,16 +62,28 @@ const Home: React.FC = () => {
 
           <button
             className="cta-button"
-            onClick={() => setShowPipeline(true)}
+            onClick={handleTryTool}
+            style={{ cursor: "pointer" }}
           >
-            Try the Tool
+            {isLoading
+              ? "Loading..."
+              : isAuthenticated
+              ? "🚀 Try the Tool"
+              : "🔐 Get Started"}
           </button>
+
+          {isAuthenticated && (
+            <p style={{ marginTop: "20px", fontSize: "16px", color: "#ccc" }}>
+              ✓ You're logged in! Click the button above to access the pipeline.
+            </p>
+          )}
         </section>
 
         {/* MARQUEE */}
         <div className="marquee">
           <div className="marquee-content">
-            Biocanvas • Precision Genomics • Sequence Quality Automation • Healthcare AI • Bioinformatics Pipeline •
+            Biocanvas • Precision Genomics • Sequence Quality Automation •
+            Healthcare AI • Bioinformatics Pipeline •
           </div>
         </div>
 
