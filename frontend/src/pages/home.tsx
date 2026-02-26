@@ -1,12 +1,8 @@
 import React, { useState } from "react";
-<<<<<<< HEAD
 import { useNavigate } from "react-router-dom";
 import PipelineApp from "../PipelineApp";
-import { UserNav } from "../components/UserNav";
+import { UserNav } from "../contexts/AuthContext";
 import { useAuth } from "../contexts/AuthContext";
-=======
-import PipelineApp from "../PipelineApp";
->>>>>>> ba5ce59 (Homepage redesign, contact section, animations, logo resize)
 import "./home.css";
 import logo from "../assets/logo.png";
 
@@ -15,7 +11,6 @@ const Home: React.FC = () => {
   const navigate = useNavigate();
   const { isAuthenticated, isLoading } = useAuth();
 
-<<<<<<< HEAD
   const handleTryTool = () => {
     if (!isAuthenticated) {
       // Redirect to login if not authenticated
@@ -26,59 +21,32 @@ const Home: React.FC = () => {
     }
   };
 
-  // If user clicks "Try the Tool" and is authenticated, show the pipeline frontend
+  // PIPELINE VIEW
   if (showPipeline && isAuthenticated) {
     return <PipelineApp />;
-=======
-  /* PIPELINE VIEW */
-  if (showPipeline) {
-    return (
-      <div>
-        <button className="back-button" onClick={() => setShowPipeline(false)}>
-          ← Back
-        </button>
-        <PipelineApp />
-      </div>
-    );
->>>>>>> ba5ce59 (Homepage redesign, contact section, animations, logo resize)
   }
 
   return (
     <>
-<<<<<<< HEAD
       {isAuthenticated && <UserNav />}
-      <nav>
-        <div className="logo-placeholder">Logo Here</div>
-=======
       <nav className="navbar">
         <div className="logo-container">
           <img src={logo} className="logo" alt="Biocanvas Logo" />
           <span className="brand-name">Biocanvas</span>
         </div>
 
->>>>>>> ba5ce59 (Homepage redesign, contact section, animations, logo resize)
         <div className="nav-links">
           <a href="#home">Home</a>
           <a href="#contact">Contact</a>
         </div>
-<<<<<<< HEAD
-        {!isAuthenticated && !isLoading && (
-          <div className="auth-buttons">
-            <button onClick={() => navigate("/login")}>Log In</button>
-            <button onClick={() => navigate("/login")}>Sign Up</button>
-          </div>
-        )}
-=======
 
         <div className="auth-buttons">
           <button className="secondary-btn">Sign Up</button>
           <button className="primary-btn">Log In</button>
         </div>
->>>>>>> ba5ce59 (Homepage redesign, contact section, animations, logo resize)
       </nav>
 
       <div className="homepage" id="home">
-
         {/* HERO */}
         <section className="hero">
           <h1>
@@ -97,13 +65,12 @@ const Home: React.FC = () => {
           >
             {isLoading ? "Loading..." : isAuthenticated ? "🚀 Try the Tool" : "🔐 Get Started"}
           </button>
-<<<<<<< HEAD
+
           {isAuthenticated && (
             <p style={{ marginTop: "20px", fontSize: "16px", color: "#ccc" }}>
               ✓ You're logged in! Click the button above to access the pipeline.
             </p>
           )}
-=======
         </section>
 
         {/* MARQUEE */}
@@ -111,10 +78,9 @@ const Home: React.FC = () => {
           <div className="marquee-content">
             Biocanvas • Precision Genomics • Sequence Quality Automation • Healthcare AI • Bioinformatics Pipeline •
           </div>
->>>>>>> ba5ce59 (Homepage redesign, contact section, animations, logo resize)
         </div>
 
-        {/* BANNER 1 */}
+        {/* BANNERS */}
         <section className="banner">
           <h2>Are you a researcher struggling with sequence quality issues?</h2>
           <p>
@@ -123,7 +89,6 @@ const Home: React.FC = () => {
           </p>
         </section>
 
-        {/* BANNER 2 */}
         <section className="banner white">
           <h2>Built for Precision Medicine & Healthcare Innovation</h2>
           <p>
@@ -151,7 +116,7 @@ const Home: React.FC = () => {
           </div>
         </section>
 
-        {/* CONTACT SECTION */}
+        {/* CONTACT */}
         <section className="contact-section" id="contact">
           <h2>BioCanvas Private Limited</h2>
 
