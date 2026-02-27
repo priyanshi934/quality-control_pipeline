@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PipelineApp from "../PipelineApp";
-import { UserNav } from "../contexts/AuthContext";
 import { useAuth } from "../contexts/AuthContext";
 import "./home.css";
 import logo from "../assets/logo.png";
@@ -28,7 +27,6 @@ const Home: React.FC = () => {
 
   return (
     <>
-      {isAuthenticated && <UserNav />}
       <nav className="navbar">
         <div className="logo-container">
           <img src={logo} className="logo" alt="Biocanvas Logo" />
