@@ -1,10 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/home";
-import Login from "./pages/Login";
+import Login from "./pages/login"; // make sure filename matches exactly
 import PipelineApp from "./PipelineApp";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import React from "react";
 
-// Protected route component - only for pipeline
+// Protected route component
 const ProtectedRoute = ({ element }: { element: React.ReactNode }) => {
   const { isAuthenticated, isLoading } = useAuth();
 
@@ -22,16 +23,12 @@ const ProtectedRoute = ({ element }: { element: React.ReactNode }) => {
 function AppRoutes() {
   return (
     <Routes>
-      {/* Login page - accessible to everyone */}
-      <Route path="/login" element={<Login />} />
-      
-      {/* Home page - accessible to everyone (shows different content based on auth) */}
       <Route path="/" element={<Home />} />
-      
-      {/* Pipeline - protected route */}
-      <Route path="/pipeline" element={<ProtectedRoute element={<PipelineApp />} />} />
-      
-      {/* Redirect unknown routes to home */}
+      <Route path="/login" element={<Login />} />
+      <Route
+        path="/pipeline"
+        element={<ProtectedRoute element={<PipelineApp />} />}
+      />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

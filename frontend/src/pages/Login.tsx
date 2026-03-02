@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { authService } from "../services/authService";
+import { useAuth } from "../contexts/AuthContext";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
@@ -11,6 +12,8 @@ type AuthMode = "login" | "register";
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth();
+
   const [mode, setMode] = useState<AuthMode>("login");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -33,32 +36,39 @@ export default function Login() {
       setError("Email is required");
       return false;
     }
+
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       setError("Please enter a valid email");
       return false;
     }
+
     if (mode === "register") {
       if (!formData.username) {
         setError("Username is required");
         return false;
       }
+
       if (formData.username.length < 3) {
         setError("Username must be at least 3 characters");
         return false;
       }
     }
+
     if (!formData.password) {
       setError("Password is required");
       return false;
     }
+
     if (formData.password.length < 6) {
       setError("Password must be at least 6 characters");
       return false;
     }
+
     if (mode === "register" && formData.password !== formData.confirmPassword) {
       setError("Passwords do not match");
       return false;
     }
+
     return true;
   };
 
@@ -67,10 +77,15 @@ export default function Login() {
     if (!validateForm()) return;
 
     setLoading(true);
+
     try {
       let response;
+
       if (mode === "login") {
-        response = await authService.login(formData.email, formData.password);
+        response = await authService.login(
+          formData.email,
+          formData.password
+        );
       } else {
         response = await authService.register(
           formData.email,
@@ -79,8 +94,8 @@ export default function Login() {
         );
       }
 
-      // Store token and user info
-      authService.saveToken(
+      // 🔥 Use AuthContext login (important fix)
+      login(
         response.access_token,
         response.email,
         response.username
@@ -88,6 +103,7 @@ export default function Login() {
 
       // Redirect to pipeline
       navigate("/pipeline");
+
     } catch (err: any) {
       setError(err.response?.data?.detail || "Authentication failed");
     } finally {
@@ -104,11 +120,14 @@ export default function Login() {
               Quality Control Pipeline
             </h1>
             <p className="text-gray-600">
-              {mode === "login" ? "Sign in to your account" : "Create a new account"}
+              {mode === "login"
+                ? "Sign in to your account"
+                : "Create a new account"}
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+
             <div>
               <Label htmlFor="email">Email</Label>
               <Input
@@ -189,6 +208,7 @@ export default function Login() {
               {mode === "login"
                 ? "Don't have an account? "
                 : "Already have an account? "}
+
               <button
                 type="button"
                 onClick={() => {

@@ -11,6 +11,7 @@ interface AuthContextType {
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  login: (token: string, email: string, username: string) => void;
   logout: () => void;
 }
 
@@ -22,29 +23,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is already logged in on mount
     const storedToken = authService.getStoredToken();
     const storedUser = authService.getStoredUser();
 
-    if (storedToken) {
-      // Verify token is still valid
-      authService.verifyToken(storedToken).then((response) => {
-        if (response.valid && storedUser.email) {
-          setToken(storedToken);
-          setUser(storedUser as User);
-        } else {
-          // Token is invalid, clear storage
-          authService.clearToken();
-        }
-        setIsLoading(false);
-      }).catch(() => {
-        authService.clearToken();
-        setIsLoading(false);
-      });
-    } else {
-      setIsLoading(false);
+    if (storedToken && storedUser) {
+      setToken(storedToken);
+      setUser(storedUser as User);
     }
+
+    setIsLoading(false);
   }, []);
+
+  const login = (newToken: string, email: string, username: string) => {
+    authService.saveToken(newToken, email, username);
+    setToken(newToken);
+    setUser({ email, username });
+  };
 
   const logout = () => {
     authService.clearToken();
@@ -57,6 +51,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     token,
     isAuthenticated: !!token && !!user,
     isLoading,
+    login,
     logout,
   };
 
@@ -65,8 +60,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
+  if (!context) {
+    throw new Error("useAuth must be used within AuthProvider");
   }
   return context;
 };

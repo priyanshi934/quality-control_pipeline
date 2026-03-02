@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+const API_BASE_URL = "http://127.0.0.1:8000";
 
 export interface AuthResponse {
   access_token: string;
@@ -16,27 +16,46 @@ export interface TokenVerifyResponse {
 }
 
 export const authService = {
-  async register(email: string, username: string, password: string): Promise<AuthResponse> {
-    const response = await axios.post(`${API_BASE_URL}/auth/register`, {
-      email,
-      username,
-      password,
-    });
+  async register(
+    email: string,
+    username: string,
+    password: string
+  ): Promise<AuthResponse> {
+    const response = await axios.post(
+      `${API_BASE_URL}/auth/register`,
+      {
+        email,
+        username,
+        password,
+      }
+    );
     return response.data;
   },
 
-  async login(email: string, password: string): Promise<AuthResponse> {
-    const response = await axios.post(`${API_BASE_URL}/auth/login`, {
-      email,
-      password,
-    });
+  async login(
+    email: string,
+    password: string
+  ): Promise<AuthResponse> {
+    const response = await axios.post(
+      `${API_BASE_URL}/auth/login`,
+      {
+        email,
+        password,
+      }
+    );
     return response.data;
   },
 
-  async verifyToken(token: string): Promise<TokenVerifyResponse> {
+  async verifyToken(
+    token: string
+  ): Promise<TokenVerifyResponse> {
     const formData = new FormData();
     formData.append("token", token);
-    const response = await axios.post(`${API_BASE_URL}/auth/verify`, formData);
+
+    const response = await axios.post(
+      `${API_BASE_URL}/auth/verify`,
+      formData
+    );
     return response.data;
   },
 
@@ -44,7 +63,11 @@ export const authService = {
     return localStorage.getItem("access_token");
   },
 
-  saveToken(token: string, email: string, username: string): void {
+  saveToken(
+    token: string,
+    email: string,
+    username: string
+  ): void {
     localStorage.setItem("access_token", token);
     localStorage.setItem("user_email", email);
     localStorage.setItem("user_username", username);
