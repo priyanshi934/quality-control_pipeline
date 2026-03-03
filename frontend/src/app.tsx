@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/home";
-import Login from "./pages/login"; // make sure filename matches exactly
+import Login from "./pages/Login"; // make sure filename matches exactly
 import PipelineApp from "./PipelineApp";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import React from "react";
